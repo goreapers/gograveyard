@@ -1,0 +1,26 @@
+linters:
+  enable-all: true
+  disable:
+    # all struct members initialized
+    - exhaustruct
+    # forbids fmt.Print.* and others
+    - forbidigo
+    # specify parallel on every test
+    - paralleltest
+    # tests in a separate package
+    - testpackage
+    # short variable names
+    - varnamelen
+    # whitespace linter
+    - wsl
+linters-settings:
+  lll:
+    line-length: 100
+    tab-width: 4
+
+issues:
+  # Maximum issues count per one linter. Set to 0 to disable. Default is 50.
+  max-issues-per-linter: 0
+
+  # Maximum count of issues with the same text. Set to 0 to disable. Default is 3.
+  max-same-issues: 0
