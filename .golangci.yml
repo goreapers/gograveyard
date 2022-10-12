@@ -5,6 +5,8 @@ linters:
     - exhaustruct
     # forbids fmt.Print.* and others
     - forbidigo
+    # no global variables
+    - gochecknoglobals
     # specify parallel on every test
     - paralleltest
     # tests in a separate package
