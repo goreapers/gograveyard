@@ -5,6 +5,8 @@ import (
 	"flag"
 	"fmt"
 	"os"
+
+	"github.com/goreapers/gograveyard"
 )
 
 const (
@@ -12,8 +14,8 @@ const (
 )
 
 var (
-	json           bool
-	ErrNoURLorPath = errors.New("need a URL or path to undertake")
+	errNoFileArg    = errors.New("a path to go.mod is required")
+	errTooManyFiles = errors.New("too many arguments, only one go.mod allowed")
 )
 
 func printHelp() {
@@ -24,7 +26,7 @@ func printHelp() {
 	fmt.Println("")
 	fmt.Println("Available Commands:")
 	fmt.Println("  help     Print this help")
-	fmt.Println("  parse    Parse a provided URL or path")
+	fmt.Println("  parse    Parse a provided go.mod")
 	fmt.Println("  version  Print current version")
 	fmt.Println("")
 	fmt.Println("Flags:")
@@ -38,12 +40,20 @@ func printVersion() {
 
 func parse(args []string) error {
 	if len(args) == 0 {
-		return ErrNoURLorPath
+		return errNoFileArg
+	}
+	if len(args) > 1 {
+		return errTooManyFiles
 	}
 
-	for i, arg := range args {
-		fmt.Printf("  %d: %s\n", i, arg)
+	goModBytes, err := gograveyard.GoModBytes(args[0])
+	if err != nil {
+		return fmt.Errorf("unable to read '%s': %w", args[0], err)
 	}
+
+	//nolint:godox
+	// TODO: replace me with parsing the bytes
+	fmt.Println(string(goModBytes))
 
 	return nil
 }
@@ -51,6 +61,7 @@ func parse(args []string) error {
 func main() {
 	flag.Usage = printHelp
 
+	var json bool
 	flag.BoolVar(&json, "json", false, "output final report in JSON")
 	flag.BoolVar(&json, "j", false, "output final report in JSON")
 
