@@ -1,2 +1,5 @@
+# ignore the binary, but not the folder
 gograveyard
+!cmd/gograveyard
+
 coverage.out
