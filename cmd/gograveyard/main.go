@@ -18,24 +18,25 @@ var (
 	errTooManyFiles = errors.New("too many arguments, only one go.mod allowed")
 )
 
-func printHelp() {
-	fmt.Println("The Go project undertaker: check go.mod dependency's health")
-	fmt.Println("")
-	fmt.Println("Usage:")
-	fmt.Println("  gograveyard [flags] [command]")
-	fmt.Println("")
-	fmt.Println("Available Commands:")
-	fmt.Println("  help     Print this help")
-	fmt.Println("  parse    Parse a provided go.mod")
-	fmt.Println("  version  Print current version")
-	fmt.Println("")
-	fmt.Println("Flags:")
-	fmt.Println("  --help, -h   help for gograveyard")
-	fmt.Println("  --json, -j   output final report in JSON")
+func helpString() string {
+	return `The Go project undertaker: check go.mod dependency's health
+
+Usage:
+  gograveyard [flags] [command]
+
+Available Commands:
+  help     Print this help
+  parse    Parse a provided go.mod
+  version  Print current version
+
+Flags:
+  --help, -h   help for gograveyard
+  --json, -j   output final report in JSON
+`
 }
 
-func printVersion() {
-	fmt.Printf("gograveyard (%s)\n", version)
+func versionString() string {
+	return fmt.Sprintf("gograveyard (%s)\n", version)
 }
 
 func parse(args []string) error {
@@ -59,7 +60,9 @@ func parse(args []string) error {
 }
 
 func main() {
-	flag.Usage = printHelp
+	flag.Usage = func() {
+		fmt.Print(helpString())
+	}
 
 	var json bool
 	flag.BoolVar(&json, "json", false, "output final report in JSON")
@@ -70,8 +73,8 @@ func main() {
 
 	// Parse the arguments, everything after the flags
 	if len(os.Args) <= flag.NFlag()+1 {
-		fmt.Printf("no subcommand specified")
-		printHelp()
+		fmt.Print("no subcommand specified\n")
+		fmt.Print(helpString())
 		os.Exit(1)
 	}
 
@@ -82,7 +85,7 @@ func main() {
 
 	switch subcommand {
 	case "help":
-		printHelp()
+		fmt.Print(helpString())
 	case "parse":
 		err := parse(args)
 		if err != nil {
@@ -90,10 +93,10 @@ func main() {
 			os.Exit(1)
 		}
 	case "version":
-		printVersion()
+		fmt.Print(versionString())
 	default:
-		fmt.Printf("unknown subcommand")
-		printHelp()
+		fmt.Printf("unknown subcommand: '%s'\n", subcommand)
+		fmt.Print(helpString())
 		os.Exit(1)
 	}
 }
