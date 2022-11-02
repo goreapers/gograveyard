@@ -13,8 +13,6 @@ linters:
     - varnamelen
     # whitespace linter
     - wsl
-    # find structs that have uninitialized fields
-    - exhaustivestruct
 linters-settings:
   lll:
     line-length: 100

@@ -13,9 +13,8 @@ type ModFile struct {
 }
 
 type Module struct {
-	Path     string
-	Version  string
-	Indirect bool
+	Path    string
+	Version string
 }
 
 func Parse(data []byte) (*ModFile, error) {
