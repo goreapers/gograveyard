@@ -42,16 +42,16 @@ func Parse(data []byte) (*ModFile, error) {
 
 		// If in a require section, parse the module
 		// A module is required to have a path and version, the "indirect" comment is optional
-		var mod Module
 		m := strings.Split(strings.TrimSpace(scanner.Text()), " ")
 		const pathAndVersion = 2
-		if len(m) == pathAndVersion {
-			mod.Path = m[0]
-			mod.Version = m[1]
-		}
 		// Skip if invalid module, missing required path or version
 		if len(m) < pathAndVersion {
 			continue
+		}
+
+		mod := Module{
+			Path:    m[0],
+			Version: m[1],
 		}
 
 		var indirect bool
