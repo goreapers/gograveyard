@@ -88,7 +88,7 @@ func TestReplace(t *testing.T) {
 			for i, d := range modFile.Direct {
 				t.Logf("[%d] path: %s version %s", i, d.Path, d.Version)
 			}
-			t.Fatalf("expected path: %s and version: %s but missing from parsed mod file", e.Path, e.Version)
+			t.Fatalf("expected path: %s, version: %s not found", e.Path, e.Version)
 		}
 	}
 }

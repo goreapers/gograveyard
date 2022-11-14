@@ -124,7 +124,6 @@ func parseReplace(line string, replace map[string]replaceInfo) {
 func replaceMods(mods []*Module, replace map[string]replaceInfo) {
 	for _, m := range mods {
 		if val, ok := replace[m.Path]; ok {
-			// If the replace directive specifies a version, only update paths with a matching version
 			if val.Originalversion != "" && val.Originalversion != m.Version {
 				continue
 			}
