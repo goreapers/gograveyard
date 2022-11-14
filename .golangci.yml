@@ -15,6 +15,8 @@ linters:
     - wsl
     # Linter requires a new line before return and branch statements
     - nlreturn
+    # Linter requires periods at end of comments
+    - godot
 linters-settings:
   lll:
     line-length: 100

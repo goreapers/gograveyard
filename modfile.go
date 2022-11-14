@@ -92,6 +92,8 @@ func parseReplace(line string, replace map[string]replaceInfo) {
 	var originalPath string
 	var info replaceInfo
 
+	const middle = 3
+
 	for i, r := range replaceTxt {
 		if r == "replace" || r == "=>" {
 			continue
@@ -99,7 +101,7 @@ func parseReplace(line string, replace map[string]replaceInfo) {
 
 		if VerifySemanticVersion(r) {
 			// The version for the path on the left side of `=>` will have an index less than 3
-			if i < 3 {
+			if i < middle {
 				info.Originalversion = r
 				continue
 			}
@@ -108,7 +110,7 @@ func parseReplace(line string, replace map[string]replaceInfo) {
 			continue
 		}
 
-		if i < 3 {
+		if i < middle {
 			originalPath = r
 			continue
 		}
