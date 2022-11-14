@@ -17,21 +17,31 @@ type Module struct {
 	Version string
 }
 
+type replaceInfo struct {
+	TargetPath      string
+	TargetVersion   string
+	Originalversion string
+}
+
 func Parse(data []byte) (*ModFile, error) {
 	scanner := bufio.NewScanner(bytes.NewReader(data))
 
 	var require bool
 	var f ModFile
+	replace := make(map[string]replaceInfo)
 
 	for scanner.Scan() {
+		if strings.HasPrefix(scanner.Text(), "replace") {
+			parseReplace(scanner.Text(), replace)
+			continue
+		}
+
 		switch scanner.Text() {
 		case "require (":
 			require = true
-
 			continue
 		case ")":
 			require = false
-
 			continue
 		}
 
@@ -45,6 +55,7 @@ func Parse(data []byte) (*ModFile, error) {
 		const pathAndVersion = 2
 		// Skip if invalid module, missing required path or version
 		if len(m) < pathAndVersion {
+			fmt.Printf("warning: invalid module found, received %s \n", scanner.Text())
 			continue
 		}
 
@@ -60,10 +71,63 @@ func Parse(data []byte) (*ModFile, error) {
 
 		if indirect {
 			f.Indirect = append(f.Indirect, &mod)
-		} else {
-			f.Direct = append(f.Direct, &mod)
+			continue
 		}
+
+		f.Direct = append(f.Direct, &mod)
 	}
 
+	// Update the paths and versions based on any replace directives found
+	replaceMods(f.Indirect, replace)
+	replaceMods(f.Direct, replace)
+
 	return &f, nil
+}
+
+// parseReplace will parse the `replace directive` found in the mod file
+// e.g. `replace golang.org/x/net v1.2.3 => example.com/fork/net v1.4.5`
+func parseReplace(line string, replace map[string]replaceInfo) {
+	replaceTxt := strings.Split(strings.TrimSpace(line), " ")
+
+	var originalPath string
+	var info replaceInfo
+
+	for i, r := range replaceTxt {
+		if r == "replace" || r == "=>" {
+			continue
+		}
+
+		if VerifySemanticVersion(r) {
+			// The version for the path on the left side of `=>` will have an index less than 3
+			if i < 3 {
+				info.Originalversion = r
+				continue
+			}
+			// The version for the path on the right side of `=>` will have an index greater than 3
+			info.TargetVersion = r
+			continue
+		}
+
+		if i < 3 {
+			originalPath = r
+			continue
+		}
+		info.TargetPath = r
+	}
+
+	replace[originalPath] = info
+}
+
+// replaceMods will update a module path and version if a matching path and version are found
+func replaceMods(mods []*Module, replace map[string]replaceInfo) {
+	for _, m := range mods {
+		if val, ok := replace[m.Path]; ok {
+			// If the replace directive specifies a version, only update paths with a matching version
+			if val.Originalversion != "" && val.Originalversion != m.Version {
+				continue
+			}
+			m.Path = val.TargetPath
+			m.Version = val.TargetVersion
+		}
+	}
 }

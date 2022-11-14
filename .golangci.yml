@@ -13,6 +13,8 @@ linters:
     - varnamelen
     # whitespace linter
     - wsl
+    # Linter requires a new line before return and branch statements
+    - nlreturn
 linters-settings:
   lll:
     line-length: 100
