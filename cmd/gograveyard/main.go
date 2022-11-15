@@ -52,9 +52,13 @@ func parse(args []string) error {
 		return fmt.Errorf("unable to read '%s': %w", args[0], err)
 	}
 
-	//nolint:godox
-	// TODO: replace me with parsing the bytes
-	fmt.Println(string(goModBytes))
+	modFile, err := gograveyard.Parse(goModBytes)
+	if err != nil {
+		return fmt.Errorf("failed to parse: %w", err)
+	}
+
+	fmt.Printf("This modfile has %d direct dependencies and %d indirect dependencies \n",
+		len(modFile.Direct), len(modFile.Indirect))
 
 	return nil
 }
