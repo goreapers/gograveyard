@@ -3,7 +3,7 @@ package gograveyard
 import (
 	"bytes"
 	"encoding/json"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"testing"
 )
@@ -15,16 +15,16 @@ func (f RoundTripFunc) RoundTrip(req *http.Request) (*http.Response, error) {
 }
 
 // NewTestClient returns *http.Client with Transport replaced to avoid making real calls
-func NewTestClient(fn RoundTripFunc) *http.Client {
-	return &http.Client{
-		Transport: RoundTripFunc(fn),
+func NewTestClient(fn http.RoundTripper) *http.Client {
+	return &http.Client{ //nolint:exhaustivestruct
+		Transport: fn,
 	}
 }
 
 func TestOpenIssuesCount(t *testing.T) {
 	expectedCount := 2
 
-	client := NewTestClient(func(req *http.Request) *http.Response {
+	testFn := func(req *http.Request) *http.Response {
 		s := SearchIssues{
 			TotalCount: expectedCount,
 		}
@@ -33,14 +33,16 @@ func TestOpenIssuesCount(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		return &http.Response{
-			StatusCode: 200,
+		return &http.Response{ //nolint:exhaustivestruct
+			StatusCode: http.StatusOK,
 			// Send response to be tested
-			Body: ioutil.NopCloser(bytes.NewBuffer(b)),
+			Body: io.NopCloser(bytes.NewBuffer(b)),
 			// Must be set to non-nil value or it panics
 			Header: make(http.Header),
 		}
-	})
+	}
+
+	client := NewTestClient(RoundTripFunc(testFn))
 
 	p := Project{
 		client,
