@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"github.com/goreapers/gograveyard"
+	"golang.org/x/mod/modfile"
 )
 
 const (
@@ -52,13 +53,23 @@ func parse(args []string) error {
 		return fmt.Errorf("unable to read '%s': %w", args[0], err)
 	}
 
-	modFile, err := gograveyard.Parse(goModBytes)
+	m, err := modfile.Parse(args[0], goModBytes, nil)
 	if err != nil {
 		return fmt.Errorf("failed to parse: %w", err)
 	}
 
+	var direct, indirect int
+	for _, r := range m.Require {
+		switch r.Indirect {
+		case true:
+			indirect++
+		case false:
+			direct++
+		}
+	}
+
 	fmt.Printf("This modfile has %d direct dependencies and %d indirect dependencies \n",
-		len(modFile.Direct), len(modFile.Indirect))
+		direct, indirect)
 
 	return nil
 }
