@@ -8,6 +8,8 @@
 
 ## Description
 
+"There is this special biologist word we use for 'stable'. It is 'dead'." - Jack Cohen
+
 ## Usage
 
 To run gograveyard pass either a URL to a repo to analyze or the path to a
