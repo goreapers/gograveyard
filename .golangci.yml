@@ -17,6 +17,8 @@ linters:
     - nlreturn
     # Linter requires periods at end of comments
     - godot
+    # Go linter that checks package imports are in a list of acceptable packages
+    - depguard
 linters-settings:
   lll:
     line-length: 100
